@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout - Toko Kaos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 20px; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+    .total { text-align: right; font-weight: bold; }
+    .form-section { margin-top: 30px; }
+    label { display: block; margin: 10px 0 5px; }
+    input[type="text"], input[type="tel"], select { width: 100%; padding: 8px; }
+    button { margin-top: 20px; background: #e91e63; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #c2185b; }
+  </style>
+</head>
+<body>
+
+<h1>Checkout</h1>
+
+<table id="cart-table">
+  <thead>
+    <tr>
+      <th>Produk</th>
+      <th>Harga</th>
+      <th>Jumlah</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<p class="total" id="total-harga">Total: Rp 0</p>
+
+<div class="form-section">
+  <h2>Informasi Pemesan</h2>
+  <form onsubmit="submitOrder(); return false;">
+    <label>Nama Lengkap</label>
+    <input type="text" required id="nama">
+
+    <label>No. HP / WhatsApp</label>
+    <input type="tel" required id="telepon">
+
+    <label>Alamat Pengiriman</label>
+    <input type="text" required id="alamat">
+
+    <label>Jasa Pengiriman</label>
+    <select id="jasa">
+      <option value="JNE">JNE</option>
+      <option value="J&T">J&T</option>
+      <option value="SPX Exprees">SPX Exprees</option>
+      <option value="AnterAja">AnterAja</option>
+    </select>
+
+    <label>Metode Pembayaran</label>
+    <select id="pembayaran">
+      <option value="COD">Bayar di Tempat (COD)</option>
+      <option value="qris">Ovo, Gopay, Shopeepay (qris)</option>
+    </select>
+
+    <button type="submit">Kirim Pesanan</button>
+  </form>
+</div>
+
+<script>
+  function loadCart() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const tbody = document.querySelector("#cart-table tbody");
+    const totalElement = document.getElementById("total-harga");
+    let total = 0;
+
+    cart.forEach(item => {
+      const subtotal = item.harga * item.qty;
+      total += subtotal;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.nama}</td>
+        <td>Rp ${item.harga.toLocaleString("id-ID")}</td>
+        <td>${item.qty}</td>
+        <td>Rp ${subtotal.toLocaleString("id-ID")}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    totalElement.textContent = `Total: Rp ${total.toLocaleString("id-ID")}`;
+  }
+
+  function submitOrder() {
+    const nama = document.getElementById("nama").value;
+    const telepon = document.getElementById("telepon").value;
+    const alamat = document.getElementById("alamat").value;
+    const jasa = document.getElementById("jasa").value;
+    const pembayaran = document.getElementById("pembayaran").value;
+
+    if (!nama || !telepon || !alamat) {
+      alert("Mohon lengkapi semua data pengiriman.");
+      return;
+    }
+
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let total = 0;
+    cart.forEach(item => {
+      total += item.harga * item.qty;
+    });
+
+    const orderData = {
+      nama,
+      telepon,
+      alamat,
+      jasa,
+      pembayaran,
+      pesanan: cart,
+      total,
+    };
+
+    localStorage.setItem("orderData", JSON.stringify(orderData));
+
+  if (pembayaran === "qris") {
+  localStorage.setItem("orderData", JSON.stringify(orderData));
+  // Jangan hapus keranjang dulu — bisa hapus setelah konfirmasi
+  window.location.href = "Qris.html";
+  return;
+}
+ // Untuk COD, Transfer Bank, E-Wallet → langsung sukses
+  localStorage.removeItem("cart");
+  window.location.href = "sukses.html";
+  }
+
+  window.onload = loadCart;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pesanan Berhasil - Toko Kaos Online</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+    .container { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { color: #4CAF50; text-align: center; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ccc; }
+    .total { text-align: right; font-weight: bold; }
+    .info { margin-top: 20px; }
+    .info p { margin: 5px 0; }
+    .button-wrap { text-align: center; margin-top: 30px; }
+    button { background: #e91e63; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #c2185b; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Pesanan Anda Berhasil!</h1>
+
+  <div class="info" id="info-pemesan"></div>
+
+  <table id="tabel-pesanan">
+    <thead>
+      <tr>
+        <th>Produk</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <p class="total" id="total-pesanan">Total: Rp 0</p>
+
+  <div class="button-wrap">
+    <button onclick="kembali()">Kembali ke Beranda</button>
+  </div>
+</div>
+
+<script>
+  function tampilkanPesanan() {
+    const data = JSON.parse(localStorage.getItem("orderData"));
+    if (!data) {
+      document.body.innerHTML = "<p style='text-align:center'>Tidak ada data pesanan.</p>";
+      return;
+    }
+
+    const info = document.getElementById("info-pemesan");
+    info.innerHTML = `
+      <p><strong>Nama:</strong> ${data.nama}</p>
+      <p><strong>Telepon:</strong> ${data.telepon}</p>
+      <p><strong>Alamat:</strong> ${data.alamat}</p>
+      <p><strong>Jasa Pengiriman:</strong> ${data.jasa}</p>
+      <p><strong>Metode Pembayaran:</strong> ${data.pembayaran}</p>
+    `;
+
+    const tbody = document.querySelector("#tabel-pesanan tbody");
+    let total = 0;
+    data.pesanan.forEach(item => {
+      const subtotal = item.harga * item.qty;
+      total += subtotal;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.nama}</td>
+        <td>Rp ${item.harga.toLocaleString("id-ID")}</td>
+        <td>${item.qty}</td>
+        <td>Rp ${subtotal.toLocaleString("id-ID")}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    document.getElementById("total-pesanan").textContent = `Total: Rp ${total.toLocaleString("id-ID")}`;
+  }
+
+  function kembali() {
+    // Bersihkan data order kalau perlu
+    localStorage.removeItem("orderData");
+    window.location.href = "index.html";
+  }
+
+  window.onload = tampilkanPesanan;
+</script>
+
+</body>
+</html>
